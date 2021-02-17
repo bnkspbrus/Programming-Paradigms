@@ -32,6 +32,10 @@ public class BinarySearchMissing {
             // for any i : array[i] > x
             return -1;
         }
+        if (array[(int) right] < x) {
+            // for any i : array[i] < x
+            return array.length;
+        }
         int res = (int) Math.ceil((left + right) / 2);
         // Inv: array[left] <= res <= array[right]
         while (left != right /* left < right */) {
@@ -65,6 +69,10 @@ public class BinarySearchMissing {
         if (array[(int) left] > x) {
             // for any i : array[i] > x
             return -1;
+        }
+        if (array[(int) right] < x) {
+            // for any i : array[i] < x
+            return array.length;
         }
         int res = (int) left;
         if (left != right) {
