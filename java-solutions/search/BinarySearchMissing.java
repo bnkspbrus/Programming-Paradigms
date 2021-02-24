@@ -20,7 +20,7 @@ public class BinarySearchMissing {
         for (int i = 0; i < array.length; i++) {
             array[i] = Integer.parseInt(args[i + 1]);
         }
-        int index = binSearch(array, 0, array.length - 1, x);
+        int index = binSearch(array, x);
         if (index == array.length || array[index] < x) {
             index = -index - 1;
         }
