@@ -6,7 +6,7 @@ public class BinarySearchMissing {
         // Pred: args.length > 0 && элементы args[] целые числа, заданные строками
         // Post: index of the search key, if it is contained in the array || (-(insertion point) - 1)
         // Integer.parseInt() Pred: integer in string Post: integer
-        assert args.length >= 1;
+        assert args.length >= 1; // :NOTE: (24.02.2021, MA) -- formal language; remove obsolete parts; move this contract to binsearch part
         final int x = Integer.parseInt(args[0]);
         final int[] array = new int[args.length - 1];
         // args.length >= 1 && array.length >=0
@@ -20,18 +20,18 @@ public class BinarySearchMissing {
         for (int i = 0; i < array.length; i++) {
             array[i] = Integer.parseInt(args[i + 1]);
         }
-        int index = binSearch(array, 0, array.length - 1, x);
+        int index = binSearch(array, x);
         if (index == array.length || array[index] < x) {
-            index = -index - 1;
+            index = -index - 1; // :NOTE: (24.02.2021, MA) -- this part must be inside binsearch!
         }
 
         System.out.println(index);
     }
 
-    static int binSearch(final int[] array, final int x) {
+    static int binSearch(final int[] array, final int x) { // :NOTE: (24.02.2021, MA) -- namings! use simillar style for method args!
         // Pred: array.length >= 1
         // Post: res == min{i∣a[i]⩽x} || insertion point
-        assert array.length >= 1;
+        assert array.length >= 1; // :NOTE: (24.02.2021, MA) -- out of bounds!! use indices for contract
         double left = 0, right = array.length - 1;
         // left == 0 && right >= 0
         if (array[(int) right] > x) {
@@ -42,7 +42,7 @@ public class BinarySearchMissing {
         // Inv: array[left] <= res <= array[right]
         while (left != right /* left < right */) {
             // Cond: left < right
-            if (array[res] <= x) {
+            if (array[res] <= x) { // :NOTE: (24.02.2021, MA) -- && Inv
                 // array[res] <= x
                 right = res; // right decreases
                 // left <= res <= right
@@ -61,7 +61,7 @@ public class BinarySearchMissing {
         return res;
     }
 
-    static int binSearch(final int[] array, double left, double right, final int x) {
+    static int binSearch(final int[] array, double left, double right, final int x) { // :NOTE: (24.02.2021, MA) -- int indices!!
         // Pred: array.length >= 1 && left <= right
         // Post: res == min{i∣a[i]⩽x} || insertion point
         assert array.length >= 1 && left <= right;
@@ -71,7 +71,7 @@ public class BinarySearchMissing {
         }
         int res = (int) left;
         if (left != right) {
-            int mid = (int) Math.floor((left + right) / 2);
+            int mid = (int) Math.floor((left + right) / 2); // :NOTE: (24.02.2021, MA) -- remove!!
             if (array[mid] <= x) {
                 right = mid;
             } else {
