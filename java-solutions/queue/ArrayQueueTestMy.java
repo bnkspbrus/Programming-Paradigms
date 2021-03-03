@@ -2,7 +2,7 @@ package queue;
 
 import java.util.Arrays;
 
-public class ArrayQueueTest {
+public class ArrayQueueTestMy {
     public static void fill(ArrayQueue queue) {
         for (int i = 0; i < 5; i++) {
             queue.enqueue(i);
