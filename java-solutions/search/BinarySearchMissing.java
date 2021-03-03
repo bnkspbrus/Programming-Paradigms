@@ -17,7 +17,8 @@ public class BinarySearchMissing {
         for (int i = 0; i < array.length; i++) {
             array[i] = Integer.parseInt(args[i + 1]);
         }
-        int index = binSearchRecursive(array, 0, array.length - 1, x);
+//        int index = binSearchRecursive(array, 0, array.length - 1, x);
+        int index = binSearchIterative(array,  x);
 
         System.out.println(index);
     }
