@@ -35,7 +35,7 @@ import java.util.Arrays;
 
     toArray()
     Pred: true
-    Post:  возвращает массив, содержащий элементы, лежащие в очереди в порядке от головы к хвосту && forall i = head..tail - 1: a[i] = a'[i] tail == tail' && head == head'
+    Post: Object[] array : array.length = head - tail && forall i : 0 <= i <= array.length --> a[i] == i - ый эл-т в очереди && forall i = head..tail - 1: a[i] = a'[i] tail == tail' && head == head'
 
  */
 
