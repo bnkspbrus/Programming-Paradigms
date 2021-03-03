@@ -1,7 +1,5 @@
 package queue;
 
-import stack.ArrayStackADT;
-
 import java.util.Arrays;
 
 public class ArrayQueueADTTest {
