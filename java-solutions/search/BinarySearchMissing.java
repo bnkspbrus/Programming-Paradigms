@@ -31,24 +31,23 @@ public class BinarySearchMissing {
         // left == 0 && right >= 0
         if (array[right] > x) {
             // for any i : array[i] > x
-            return -array.length - 1;
+            return -array.length - 1; // :NOTE: (03.03.2021, MA) -- contract: i
         }
         int res = (left + right) / 2;
         // Inv: left <= res <= right
         while (left < right /* left < right */) {
             // Cond: left < right
             if (array[res] <= x) {
-                // array[res] <= x
+                // array[res] <= x && Inv
                 right = res;
-                // left <= res = res -- Inv
-                // right decrease
+                // left <= res = right' < right && Inv
             } else {
-                // array[res] > x
+                // array[res] > x && Inv
                 left = res + 1; // Inv, because left + 1 <= right (Cond) --> res < right, because round flore for divide integers
-                // left increase
+                // left < left' = res <= right
             }
             res = (left + right) / 2;
-            // left <= res <= right --> Inv
+            // Inv
         }
         // Inv && !Cond
         // left == right == res -- min{i∣a[i]⩽x}
@@ -69,7 +68,7 @@ public class BinarySearchMissing {
         int res = left;
         // Inv: left <= res <=right --> array[left] >= array[res] >= array[left]
         if (left < right) { // Cond: left < right
-            res = (left + right) / 2;
+            res = (left + right) / 2; // :NOTE: (03.03.2021, MA) -- contracts like in iter version
             // left <= res <= right --> Inv
             if (array[res] <= x) {
                 right = res;
