@@ -3,9 +3,6 @@ package search;
 public class BinarySearchMissing {
 
     public static void main(final String[] args) {
-        // Pred: args.length > 0 && элементы args[] целые числа, заданные строками
-        // Post: index of the search key, if it is contained in the array || (-(insertion point) - 1)
-        // Integer.parseInt() Pred: integer in string Post: integer
         assert args.length >= 1;
         final int x = Integer.parseInt(args[0]);
         final int[] array = new int[args.length - 1];
@@ -26,33 +23,31 @@ public class BinarySearchMissing {
     }
 
     static int binSearchIterative(final int[] array, final int x) {
-        // Pred: array.length >= 1
+        // Pred: array.length >= 1 && array contains integers && array sorted descending
         // Post: res == min{i∣a[i]⩽x} || insertion point
         assert array.length >= 1;
         int left = 0, right = array.length - 1;
         // left == 0 && right >= 0
-        if (array[(int) right] > x) {
+        if (array[right] > x) {
             // for any i : array[i] > x
             return -array.length - 1;
         }
         int res = (left + right) / 2;
-        // Inv: array[left] <= res <= array[right]
-        while (left != right /* left < right */) {
+        // Inv: left <= res <= right
+        while (left < right /* left < right */) {
             // Cond: left < right
             if (array[res] <= x) {
                 // array[res] <= x
-                right = res; // right decreases
-                // left <= res <= right
-                // array[left] <= x
+                right = res;
+                // left <= res = res -- Inv
+                // right decrease
             } else {
-                // array[left] > x
-                left = res + 1; // left increases
-                // left <= res <= right
-
+                // array[res] > x
+                left = res + 1; // Inv, because left + 1 <= right (Cond) --> res < right, because round flore for divide integers
+                // left increase
             }
-            //res = (int) Math.floor((left + right) / 2);
-            // res decreases, when Cond
             res = (left + right) / 2;
+            // left <= res <= right --> Inv
         }
         // Inv && !Cond
         // left == right == res -- min{i∣a[i]⩽x}
@@ -63,20 +58,26 @@ public class BinarySearchMissing {
     }
 
     static int binSearchRecursive(final int[] array, int left, int right, final int x) {
-        // Pred: array.length >= 1 && left <= right
+        // Pred: array.length >= 1 && left <= right && array contains integers && array sorted descending
         // Post: res == min{i∣a[i]⩽x} || insertion point
         assert array.length >= 1 && left <= right;
-        if (array[(int) right] > x) {
+        if (array[right] > x) {
             // for any i : array[i] > x
             return -array.length - 1;
         }
         int res = left;
-        if (left != right) {
-            int mid = (left + right) / 2;
-            if (array[mid] <= x) {
-                right = mid;
+        // Inv: left <= res <=right --> array[left] >= array[res] >= array[left]
+        if (left < right) { // Cond: left < right
+            res = (left + right) / 2;
+            // left <= res <= right --> Inv
+            if (array[res] <= x) {
+                right = res;
+                // left <= res = res -- Inv
+                // right decrease
             } else {
-                left = mid + 1;
+                // array[res] > x
+                left = res + 1; // Inv, because left + 1 <= right (Cond) --> res < right, because round flore for divide integers
+                // left increase
             }
             res = binSearchRecursive(array, left, right, x);
         }
