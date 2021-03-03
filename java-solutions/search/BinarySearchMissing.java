@@ -30,7 +30,7 @@ public class BinarySearchMissing {
         int left = 0, right = array.length - 1;
         // left == 0 && right >= 0
         if (array[right] > x) {
-            // for any i : left <= i <= right array[i] > x
+            // for any i : left <= i <= right --> array[i] > x
             return -array.length - 1; // :NOTE: (03.03.2021, MA) -- contract: i
         }
         int res = (left + right) / 2;
@@ -62,7 +62,7 @@ public class BinarySearchMissing {
         // Post: res : array[res] == x || -(min{i∣a[i]⩽x}) - 1 if for any i: i : 0 <= i <= array.length - 1 --> a[i] != x
         assert array.length >= 1 && left <= right;
         if (array[right] > x) {
-            // for any i : left <= i <= right array[i] > x
+            // for any i : left <= i <= right --> array[i] > x
             return -array.length - 1;
         }
         int res = left;
