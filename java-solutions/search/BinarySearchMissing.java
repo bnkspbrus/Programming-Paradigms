@@ -58,7 +58,7 @@ public class BinarySearchMissing {
     }
 
     static int binSearchRecursive(final int[] array, int left, int right, final int x) {
-        // Pred: array.length >= 1 && for any i : 0 <= i <= array.length - 1 --> a[i] -- integer value && for any j : j <= array.length - 1 && i < j --> a[i] >= a[j]
+        // Pred: array.length >= 1 && for any i : 0 <= i <= array.length - 1 --> a[i] -- integer value && for any j : j <= array.length - 1 && i < j --> a[i] >= a[j] && left >= 0 && right <= array.length - 1
         // Post: res : array[res] == x || -(min{i∣a[i]⩽x}) - 1 if for any i: 0 <= i <= array.length - 1 --> a[i] != x
         assert array.length >= 1 && left <= right;
         if (array[right] > x) {
