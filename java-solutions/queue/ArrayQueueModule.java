@@ -1,104 +1,99 @@
 package queue;
 
-import java.util.Arrays;
-
 /*
     Model:
         [a1, a2, ...an]
-        tail, head -- pointers
-        tail - head -- size of queue
-        tail >= head
+        head -- pointer
+        size -- size of queue
 
     Inv:
         tail >= head
-        forall i = head..tail: a[i] != null
+        forall i = head..head + size - 1: a[i] != null
 
-    enqueue(e)
+    enqueue(queue, e)
     Pred: e != null
-    Post: tail = tail' + 1 && head = head' && a[tail'] = e && forall i = head..tail' - 1: a[i] = a'[i]
+    Post: size = size' + 1 && head = head' && a[tail'] = e && forall i = head..head + size - 1: a[i] = a'[i]
 
-    dequeue()
-    Pred: n > 0
-    Post: head = head' + 1 && tail == tail' R == a[head'] && i = head..tail - 1: a[i] = a'[i]
+    dequeue(queue)
+    Pred: size > 0
+    Post: head = head' + 1 && size == size' - 1 R == a[head'] && i = head..head + size - 1: a[i] = a'[i]
 
-    element()
-    Pred: n > 0
-    Post: R == a[head] && head == head' && tail = tail' && forall i = head..tail - 1: a[i] = a'[i]
+    element(queue)
+    Pred: size > 0
+    Post: R == a[head] && head == head' && size = size' && forall i = head..head + size - 1: a[i] = a'[i]
 
-    size()
+    size(queue)
     Pred: true
-    Post: R == tail - head && forall i = head..tail - 1: a[i] = a'[i] && head = head' && tail = tail'
+    Post: R == size && forall i = head..head + size - 1: a[i] = a'[i] && size = size' && head = head'
 
-    isEmpty()
+    isEmpty(queue)
     Pred: true
-    Post: R == (tail - head == 0) && forall i = head..tail - 1: a[i] = a'[i] && head = head' && tail = tail'
+    Post: R == (size == 0) && forall i = head..head + size - 1: a[i] = a'[i] && head = head' && size = size'
 
-    toArray()
+    toArray(queue)
     Pred: true
-    Post: Object[] array : array.length = head - tail && forall i : 0 <= i <= array.length --> a[i] == i - ый эл-т в очереди && forall i = head..tail - 1: a[i] = a'[i] tail == tail' && head == head'
+    Post: Object[] array : array.length = size && forall i : 0 <= i <= array.length --> a[i] == i - ый эл-т в очереди && forall i = head..head + size - 1: a[i] = a'[i] size == size' && head == head'
 
+    clear()
+    Pred: true
+    Post: forall i = head..head + size - 1 : a[i] = null && head == size = 0
  */
 
 public class ArrayQueueModule {
-    private static int head, tail;
+    private static int head, size;
     private static Object[] elements = new Object[5];
 
     public static void enqueue(Object element) {
         assert element != null;
-        ensureCapacity(tail + 1 - head /* new capacity */);
-        elements[tail % elements.length] = element;
-        tail++;
+        ensureCapacity(size + 1 /* new capacity */);
+        elements[(head + size) % elements.length] = element;
+        size++;
     }
 
     private static void ensureCapacity(int capacity) {
         if (capacity > elements.length) {
-            Object[] newElements = Arrays.copyOf(Arrays.copyOfRange(elements, head, elements.length), elements.length * 2);
-            if (tail > elements.length) {
-                System.arraycopy(elements, 0, newElements, elements.length - head, tail % elements.length);
-            }
+            elements = fillArray(new Object[elements.length * 2]);
             head = 0;
-            tail = elements.length;
-            elements = newElements;
         }
     }
 
     public static Object dequeue() {
-        assert tail - head > 0;
+        assert size > 0;
         Object ret = elements[head];
         elements[head] = null;
         head++;
-        if (head == elements.length) {
-            head -= elements.length;
-            tail -= elements.length;
-        }
+        size--;
+        head %= elements.length;
         return ret;
     }
 
     public static Object element() {
-        assert tail - head > 0;
+        assert size > 0;
         return elements[head];
     }
 
     public static int size() {
-        return tail - head;
+        return size;
     }
 
     public static boolean isEmpty() {
-        return tail - head == 0;
+        return size == 0;
     }
 
     public static void clear() {
         elements = new Object[5];
-        head = tail = 0;
+        head = size = 0;
     }
 
     public static Object[] toArray() {
-        Object[] ans = new Object[tail - head];
-        if (Math.min(tail, elements.length) - head >= 0)
-            System.arraycopy(elements, head, ans, 0, Math.min(tail, elements.length) - head);
-        if (tail > elements.length) {
-            System.arraycopy(elements, 0, ans, elements.length - head, tail % elements.length);
+        return fillArray(new Object[size]/*tail - head*/);
+    }
+
+    private static Object[] fillArray(Object[] array) {
+//        Object[] newElements = new Object[newSize];
+        for (int i = 0; i < size; i++) {
+            array[i] = elements[(head + i) % elements.length];
         }
-        return ans;
+        return array;
     }
 }
