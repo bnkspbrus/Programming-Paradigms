@@ -18,20 +18,20 @@ public class BinarySearchMissing {
             array[i] = Integer.parseInt(args[i + 1]);
         }
 //        int index = binSearchRecursive(array, 0, array.length - 1, x);
-        int index = binSearchIterative(array,  x);
+        int index = binSearchIterative(array, x);
 
         System.out.println(index);
     }
 
     static int binSearchIterative(final int[] array, final int x) {
         // Pred: array.length >= 1 && for any i : 0 <= i <= array.length - 1 --> a[i] -- integer value && for any j : j <= array.length - 1 && i < j --> a[i] >= a[j]
-        // Post: res : array[res] == x || -(min{i∣a[i]⩽x}) - 1 if for any i: i : 0 <= i <= array.length - 1 --> a[i] != x
+        // Post: res : array[res] == x || -(min{i∣a[i]⩽x}) - 1 if for any i: 0 <= i <= array.length - 1 --> a[i] != x
         assert array.length >= 1;
         int left = 0, right = array.length - 1;
         // left == 0 && right >= 0
         if (array[right] > x) {
             // for any i : left <= i <= right --> array[i] > x
-            return -array.length - 1; // :NOTE: (03.03.2021, MA) -- contract: i
+            return -array.length - 1;
         }
         int res = (left + right) / 2;
         // Inv: left <= res <= right
@@ -40,11 +40,11 @@ public class BinarySearchMissing {
             if (array[res] <= x) {
                 // array[res] <= x && Inv
                 right = res;
-                // left <= res = right < right' && Inv
+                // left <= res = right < right' --> Inv
             } else {
                 // array[res] > x && Inv
                 left = res + 1;
-                // res + 1 == left > left' <= right
+                // res + 1 == left > left' <= right --> Inv
             }
             res = (left + right) / 2;
             // Inv
@@ -59,7 +59,7 @@ public class BinarySearchMissing {
 
     static int binSearchRecursive(final int[] array, int left, int right, final int x) {
         // Pred: array.length >= 1 && for any i : 0 <= i <= array.length - 1 --> a[i] -- integer value && for any j : j <= array.length - 1 && i < j --> a[i] >= a[j]
-        // Post: res : array[res] == x || -(min{i∣a[i]⩽x}) - 1 if for any i: i : 0 <= i <= array.length - 1 --> a[i] != x
+        // Post: res : array[res] == x || -(min{i∣a[i]⩽x}) - 1 if for any i: 0 <= i <= array.length - 1 --> a[i] != x
         assert array.length >= 1 && left <= right;
         if (array[right] > x) {
             // for any i : left <= i <= right --> array[i] > x
@@ -67,18 +67,18 @@ public class BinarySearchMissing {
         }
         int res = left;
         // res == left
-        // Inv: left <= res <=right --> array[left] >= array[res] >= array[left]
+        // Inv: left <= res <= right --> array[left] >= array[res] >= array[left]
         if (left < right) { // Cond: left < right
-            res = (left + right) / 2; // :NOTE: (03.03.2021, MA) -- contracts like in iter version
+            res = (left + right) / 2;
             // Inv && Cond
             if (array[res] <= x) {
                 // array[res] <= x && Inv
                 right = res;
-                // left <= res = right < right' && Inv
+                // left <= res = right < right' --> Inv
             } else {
                 // array[res] > x
                 left = res + 1;
-                // res + 1 == left > left' <= right
+                // res + 1 == left > left' <= right --> Inv
             }
             res = binSearchRecursive(array, left, right, x);
         }
