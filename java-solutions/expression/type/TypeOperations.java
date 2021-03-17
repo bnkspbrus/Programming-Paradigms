@@ -4,15 +4,15 @@ import expression.exceptions.EvaluatingException;
 import expression.exceptions.ParsingException;
 
 public interface TypeOperations<T> {
-    T add(T left, T right) throws ParsingException, EvaluatingException;
+    T add(T left, T right);
 
-    T divide(T left, T right) throws ParsingException;
+    T divide(T left, T right);
 
-    T subtract(T left, T right) throws ParsingException, EvaluatingException;
+    T subtract(T left, T right);
 
-    T negate(T left) throws ParsingException, EvaluatingException;
+    T negate(T left);
 
-    T multiply(T left, T right) throws ParsingException, EvaluatingException;
+    T multiply(T left, T right);
 
-    T valueOf(String s) throws ParsingException;
+    T valueOf(String s);
 }

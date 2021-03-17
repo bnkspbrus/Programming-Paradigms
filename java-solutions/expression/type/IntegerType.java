@@ -17,7 +17,7 @@ public class IntegerType implements TypeOperations<Integer> {
     }
 
     @Override
-    public Integer add(Integer left, Integer right) throws ParsingException, EvaluatingException {
+    public Integer add(Integer left, Integer right) {
         if (checkMode) {
             if (mainCondBin(right, left)) {
                 return null;
@@ -32,7 +32,7 @@ public class IntegerType implements TypeOperations<Integer> {
     }
 
     @Override
-    public Integer divide(Integer left, Integer right) throws ParsingException {
+    public Integer divide(Integer left, Integer right) {
         if (checkMode) {
             if (mainCondBin(right, left)) {
                 return null;
@@ -49,7 +49,7 @@ public class IntegerType implements TypeOperations<Integer> {
     }
 
     @Override
-    public Integer subtract(Integer left, Integer right) throws ParsingException, EvaluatingException {
+    public Integer subtract(Integer left, Integer right) {
         if (checkMode) {
 //            if (mainCondBin(left, right)) {
 //                return null;
@@ -74,7 +74,7 @@ public class IntegerType implements TypeOperations<Integer> {
     }
 
     @Override
-    public Integer negate(Integer left) throws ParsingException, EvaluatingException {
+    public Integer negate(Integer left) {
         if (checkMode) {
             if (left == null) {
                 return null;
@@ -88,7 +88,7 @@ public class IntegerType implements TypeOperations<Integer> {
     }
 
     @Override
-    public Integer multiply(Integer left, Integer right) throws ParsingException, EvaluatingException {
+    public Integer multiply(Integer left, Integer right) {
         if (checkMode) {
             if (mainCondBin(right, left)) {
                 return null;
