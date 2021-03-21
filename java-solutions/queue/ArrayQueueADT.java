@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
     Model:
         [a1, a2, ...an]
@@ -97,4 +98,9 @@ public class ArrayQueueADT {
         }
         return array;
     }
+=======
+package queue;
+
+public class ArrayQueueADT {
+>>>>>>> 0ad04519b817984df6dd89162e4efc2c1f40d8ee
 }

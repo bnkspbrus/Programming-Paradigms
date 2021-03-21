@@ -1,6 +1,7 @@
 package queue;
 
 public class ArrayQueueModule {
+<<<<<<< HEAD
     private static int head, size;
     private static Object[] elements = new Object[5];
 
@@ -57,4 +58,6 @@ public class ArrayQueueModule {
         }
         return array;
     }
+=======
+>>>>>>> 0ad04519b817984df6dd89162e4efc2c1f40d8ee
 }

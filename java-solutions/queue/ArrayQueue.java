@@ -1,5 +1,6 @@
 package queue;
 
+<<<<<<< HEAD
 public class ArrayQueue extends AbstractQueue {
     private int head;
     private Object[] elements = new Object[5];
@@ -65,3 +66,7 @@ public class ArrayQueue extends AbstractQueue {
 //    }
 }
 
+=======
+public class ArrayQueue {
+}
+>>>>>>> 0ad04519b817984df6dd89162e4efc2c1f40d8ee
