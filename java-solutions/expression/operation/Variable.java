@@ -4,7 +4,7 @@ import expression.TripleExpression;
 
 public class Variable<T> implements TripleExpression<T> {
 
-    final String name;
+    final String name; // name
 
     public Variable(String name) {
         this.name = name;
