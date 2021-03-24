@@ -1,5 +1,5 @@
 package expression;
 
-public interface TripleExpression<T> {
+public interface TripleExpressionGeneric<T> {
     T evaluate(T x, T y, T z);
 }

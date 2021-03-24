@@ -1,11 +1,11 @@
 package expression.operation;
 
-import expression.TripleExpression;
+import expression.TripleExpressionGeneric;
 import expression.type.TypeOperations;
 
 public class Divide<T> extends AbstractBinary<T> {
 
-    public Divide(TripleExpression<T> left, TripleExpression<T> right, TypeOperations<T> type) {
+    public Divide(TripleExpressionGeneric<T> left, TripleExpressionGeneric<T> right, TypeOperations<T> type) {
         super(left, right, type);
     }
 

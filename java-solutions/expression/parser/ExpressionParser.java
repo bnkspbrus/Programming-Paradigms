@@ -7,7 +7,7 @@ import expression.type.TypeOperations;
 
 import java.util.*;
 
-public class ExpressionParser<T> implements Parser<T> {
+public class ExpressionParser<T> implements ParserGeneric<T> {
 
     private String expression;
 
@@ -17,11 +17,11 @@ public class ExpressionParser<T> implements Parser<T> {
         this.type = type;
     }
 
-    public TripleExpression<T> parse(String expression) throws ParsingException {
+    public TripleExpressionGeneric<T> parse(String expression) throws ParsingException {
         pos = 0;
         name = "begin_line";
         this.expression = expression;
-        TripleExpression<T> res = thirdPriority();
+        TripleExpressionGeneric<T> res = thirdPriority();
         if (!name.equals("end_line")) {
             throw new ParsingException("No opening parenthesis\n");
         }
@@ -29,8 +29,8 @@ public class ExpressionParser<T> implements Parser<T> {
     }
 
 
-    private TripleExpression<T> firstPriority() throws ParsingException {
-        TripleExpression<T> res;
+    private TripleExpressionGeneric<T> firstPriority() throws ParsingException {
+        TripleExpressionGeneric<T> res;
         String prevName = name;
         nextName();
         switch (name) {
@@ -73,8 +73,8 @@ public class ExpressionParser<T> implements Parser<T> {
         return "middle";
     }
 
-    private TripleExpression<T> secondPriority() throws ParsingException {
-        TripleExpression<T> left = firstPriority();
+    private TripleExpressionGeneric<T> secondPriority() throws ParsingException {
+        TripleExpressionGeneric<T> left = firstPriority();
         while (true) {
             switch (name) {
                 case "*":
@@ -89,8 +89,8 @@ public class ExpressionParser<T> implements Parser<T> {
         }
     }
 
-    private TripleExpression<T> thirdPriority() throws ParsingException {
-        TripleExpression<T> left = secondPriority();
+    private TripleExpressionGeneric<T> thirdPriority() throws ParsingException {
+        TripleExpressionGeneric<T> left = secondPriority();
         while (true) {
             switch (name) {
                 case "-":

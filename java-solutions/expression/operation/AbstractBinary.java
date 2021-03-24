@@ -1,13 +1,13 @@
 package expression.operation;
 
-import expression.TripleExpression;
+import expression.TripleExpressionGeneric;
 import expression.type.TypeOperations;
 
-public abstract class AbstractBinary<T> implements TripleExpression<T> {
-    TripleExpression<T> leftD, rightD;
+public abstract class AbstractBinary<T> implements TripleExpressionGeneric<T> {
+    TripleExpressionGeneric<T> leftD, rightD;
     TypeOperations<T> type;
 
-    public AbstractBinary(TripleExpression<T> left, TripleExpression<T> right, TypeOperations<T> type) {
+    public AbstractBinary(TripleExpressionGeneric<T> left, TripleExpressionGeneric<T> right, TypeOperations<T> type) {
         leftD = left;
         rightD = right;
         this.type = type;

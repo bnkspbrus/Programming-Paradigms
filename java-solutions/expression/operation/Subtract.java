@@ -1,11 +1,11 @@
 package expression.operation;
 
-import expression.TripleExpression;
+import expression.TripleExpressionGeneric;
 import expression.type.TypeOperations;
 
 public class Subtract<T> extends AbstractBinary<T> {
 
-    public Subtract(TripleExpression<T> left, TripleExpression<T> right, TypeOperations<T> type) {
+    public Subtract(TripleExpressionGeneric<T> left, TripleExpressionGeneric<T> right, TypeOperations<T> type) {
         super(left, right, type);
     }
 

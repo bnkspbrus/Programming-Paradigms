@@ -1,13 +1,13 @@
 package expression.operation;
 
-import expression.TripleExpression;
+import expression.TripleExpressionGeneric;
 import expression.type.TypeOperations;
 
-public abstract class AbstractUnary<T> implements TripleExpression<T> {
+public abstract class AbstractUnary<T> implements TripleExpressionGeneric<T> {
     TypeOperations<T> type;
-    TripleExpression<T> unaryD;
+    TripleExpressionGeneric<T> unaryD;
 
-    AbstractUnary(TripleExpression<T> unary, TypeOperations<T> type) {
+    AbstractUnary(TripleExpressionGeneric<T> unary, TypeOperations<T> type) {
         this.unaryD = unary;
         this.type = type;
     }

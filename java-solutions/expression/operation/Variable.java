@@ -1,8 +1,8 @@
 package expression.operation;
 
-import expression.TripleExpression;
+import expression.TripleExpressionGeneric;
 
-public class Variable<T> implements TripleExpression<T> {
+public class Variable<T> implements TripleExpressionGeneric<T> {
 
     final String name; // name
 

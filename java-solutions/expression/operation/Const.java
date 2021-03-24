@@ -1,8 +1,8 @@
 package expression.operation;
 
-import expression.TripleExpression;
+import expression.TripleExpressionGeneric;
 
-public class Const<T> implements TripleExpression<T> {
+public class Const<T> implements TripleExpressionGeneric<T> {
 
     final T value;
 

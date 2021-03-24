@@ -1,11 +1,11 @@
 package expression.operation;
 
-import expression.TripleExpression;
+import expression.TripleExpressionGeneric;
 import expression.type.TypeOperations;
 
 public class Negate<T> extends AbstractUnary<T> {
 
-    public Negate(TripleExpression<T> unary, TypeOperations<T> type) {
+    public Negate(TripleExpressionGeneric<T> unary, TypeOperations<T> type) {
         super(unary, type);
     }
 

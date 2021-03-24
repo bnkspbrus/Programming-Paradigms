@@ -1,6 +1,6 @@
 package expression.generic;
 
-import expression.TripleExpression;
+import expression.TripleExpressionGeneric;
 import expression.exceptions.ParsingException;
 import expression.parser.ExpressionParser;
 import expression.type.*;
@@ -32,7 +32,7 @@ public class GenericTabulator implements Tabulator {
     private <T> Object[][][] fillArray(TypeOperations<T> type, Object[][][] array) throws ParsingException {
 //        TripleExpression<T> tripleExpression = new ExpressionParser<>(type);
         ExpressionParser<T> ex = new ExpressionParser<>(type);
-        TripleExpression<T> tripleExpression = ex.parse(expression);
+        TripleExpressionGeneric<T> tripleExpression = ex.parse(expression);
         for (int i = 0; i < array.length; i++) {
             for (int j = 0; j < array[0].length; j++) {
                 for (int k = 0; k < array[0][0].length; k++) {
