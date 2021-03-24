@@ -20,15 +20,6 @@ public class GenericTabulator implements Tabulator {
             "f", new FloatType(),
             "b", new ByteType());
 
-//    {
-//        changeType.put("i", new IntegerType(true));
-//        changeType.put("d", new DoubleType());
-//        changeType.put("bi", new BigIntegerType());
-//        changeType.put("u", new IntegerType(false));
-//        changeType.put("f", new FloatType());
-//        changeType.put("b", new ByteType());
-//    }
-
     @Override
     public Object[][][] tabulate(String mode, String expression, int x1, int x2, int y1, int y2, int z1, int z2) throws ParsingException {
         this.expression = expression;
