@@ -1,7 +1,6 @@
 package expression.operation;
 
 import expression.TripleExpression;
-import expression.exceptions.ParsingException;
 
 public class Variable<T> implements TripleExpression<T> {
 
@@ -11,7 +10,7 @@ public class Variable<T> implements TripleExpression<T> {
         this.name = name;
     }
 
-    public T evaluate(T x, T y, T z) throws ParsingException {
+    public T evaluate(T x, T y, T z) {
         switch (name) {
             case ("x"):
                 return x;

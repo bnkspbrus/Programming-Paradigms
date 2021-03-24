@@ -1,8 +1,5 @@
 package expression.type;
 
-import expression.exceptions.EvaluatingException;
-import expression.exceptions.ParsingException;
-
 public class FloatType implements TypeOperations<Float> {
 
     @Override

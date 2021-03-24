@@ -1,7 +1,6 @@
 package expression.operation;
 
 import expression.TripleExpression;
-import expression.exceptions.ParsingException;
 
 public class Const<T> implements TripleExpression<T> {
 
@@ -11,7 +10,7 @@ public class Const<T> implements TripleExpression<T> {
         this.value = value;
     }
 
-    public T evaluate(T x, T y, T z) throws ParsingException {
+    public T evaluate(T x, T y, T z) {
         return value;
     }
 }

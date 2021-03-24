@@ -41,9 +41,11 @@ public class ExpressionParser<T> implements Parser<T> {
                 nextName();
                 break;
             case "-":
+//                if (negate) {
                 negate = false;
                 res = new Negate<>(firstPriority(), type);
                 break;
+//                }
             case "x":
             case "y":
             case "z":
@@ -94,8 +96,8 @@ public class ExpressionParser<T> implements Parser<T> {
                 case "-":
                     if (!negate) {
                         left = new Subtract<>(left, secondPriority(), type);
+                        break;
                     }
-                    break;
                 case "+":
                     left = new Add<>(left, secondPriority(), type);
                     break;
@@ -112,25 +114,25 @@ public class ExpressionParser<T> implements Parser<T> {
     private int pos;
 
     private void scipWS() {
-        while (pos < expression.length() && isWhitespace(expression.charAt(pos))) {
+        while (pos < expression.length() && Character.isWhitespace(expression.charAt(pos))) {
             pos++;
         }
     }
 
     private String readNumber() {
         int mark = pos++;
-        while (pos < expression.length() && isDigit(expression.charAt(pos))) {
+        while (pos < expression.length() && Character.isDigit(expression.charAt(pos))) {
             pos++;
         }
         return expression.substring(mark, pos);
     }
 
-    private final Set<String> names = Set.of("+", "-", "*", "/", "(", ")", "x", "y", "z");
+    private final Set<String> NAMES = Set.of("+", "-", "*", "/", "(", ")", "x", "y", "z");
 
-    private final Set<String> variables = Set.of("x", "y", "z");
+    private final Set<String> VARIABLES = Set.of("x", "y", "z");
 
     boolean isVariable(String name) {
-        return variables.contains(name);
+        return VARIABLES.contains(name);
     }
 
     private void nextName() {
@@ -142,7 +144,7 @@ public class ExpressionParser<T> implements Parser<T> {
         if (expression.charAt(pos) == '-' && !isNumber(name) && !name.equals(")") && !isVariable(name)) {
             scipWS();
             pos++;
-            if (pos < expression.length() && isDigit(expression.charAt(pos))) {
+            if (pos < expression.length() && Character.isDigit(expression.charAt(pos))) {
                 name = "-" + readNumber();
                 return;
             }
@@ -150,7 +152,7 @@ public class ExpressionParser<T> implements Parser<T> {
             name = "-";
             return;
         }
-        if (isDigit(expression.charAt(pos))) {
+        if (Character.isDigit(expression.charAt(pos))) {
             name = readNumber();
             return;
         }
@@ -158,20 +160,20 @@ public class ExpressionParser<T> implements Parser<T> {
     }
 
     boolean isNumber(String name) {
-        return name.length() > 1 ? isDigit(name.charAt(1)) : isDigit(name.charAt(0));
+        return name.length() > 1 ? Character.isDigit(name.charAt(1)) : Character.isDigit(name.charAt(0));
     }
 
-    private boolean isWhitespace(char c) {
-        return c == ' ' || c == '\n' || c == '\t';
-    }
+//    private boolean isWhitespace(char c) {
+//        return c == ' ' || c == '\n' || c == '\t';
+//    }
 
-    private boolean isDigit(char c) {
-        return c >= '0' && c <= '9';
-    }
+//    private boolean isDigit(char c) {
+//        return c >= '0' && c <= '9';
+//    }
 
     private String readName() {
         int mark = pos++;
-        while (pos < expression.length() && !names.contains(expression.substring(mark, pos))) {
+        while (pos < expression.length() && !NAMES.contains(expression.substring(mark, pos))) {
             pos++;
         }
         return expression.substring(mark, pos);

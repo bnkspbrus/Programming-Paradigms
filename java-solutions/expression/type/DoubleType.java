@@ -1,7 +1,5 @@
 package expression.type;
 
-import expression.exceptions.ParsingException;
-
 public class DoubleType implements TypeOperations<Double> {
 
     @Override

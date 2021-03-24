@@ -1,8 +1,5 @@
 package expression.type;
 
-import expression.exceptions.EvaluatingException;
-import expression.exceptions.ParsingException;
-
 public interface TypeOperations<T> {
     T add(T left, T right);
 

@@ -1,17 +1,14 @@
 package expression.type;
 
-import expression.exceptions.EvaluatingException;
-import expression.exceptions.ParsingException;
-
-public class ByteType implements TypeOperations<Byte> {
+public class ByteType extends AbstractNonDivisibleType<Byte> {
 
     @Override
-    public Byte add(Byte left, Byte right) {
+    public Byte addImpl(Byte left, Byte right) {
         return (byte) (left + right);
     }
 
     @Override
-    public Byte divide(Byte left, Byte right) {
+    public Byte divideImpl(Byte left, Byte right) {
         if (right == 0) {
             return null;
         }
@@ -19,17 +16,17 @@ public class ByteType implements TypeOperations<Byte> {
     }
 
     @Override
-    public Byte subtract(Byte left, Byte right) {
+    public Byte subtractImpl(Byte left, Byte right) {
         return (byte) (left - right);
     }
 
     @Override
-    public Byte negate(Byte left) {
+    public Byte negateImpl(Byte left) {
         return (byte) -left;
     }
 
     @Override
-    public Byte multiply(Byte left, Byte right) {
+    public Byte multiplyImpl(Byte left, Byte right) {
         return (byte) (left * right);
     }
 

@@ -1,7 +1,6 @@
 package expression.operation;
 
 import expression.TripleExpression;
-import expression.exceptions.ParsingException;
 import expression.type.TypeOperations;
 
 public class Divide<T> extends AbstractBinary<T> {
@@ -11,7 +10,7 @@ public class Divide<T> extends AbstractBinary<T> {
     }
 
     @Override
-    protected T evaluateImpl(T left, T right) throws ParsingException {
+    protected T evaluateImpl(T left, T right) {
         return type.divide(left, right);
     }
 }

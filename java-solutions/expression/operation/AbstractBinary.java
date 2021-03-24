@@ -1,8 +1,6 @@
 package expression.operation;
 
 import expression.TripleExpression;
-import expression.exceptions.EvaluatingException;
-import expression.exceptions.ParsingException;
 import expression.type.TypeOperations;
 
 public abstract class AbstractBinary<T> implements TripleExpression<T> {
@@ -15,11 +13,11 @@ public abstract class AbstractBinary<T> implements TripleExpression<T> {
         this.type = type;
     }
 
-    public T evaluate(T x, T y, T z) throws ParsingException, EvaluatingException {
+    public T evaluate(T x, T y, T z) {
         T left = leftD.evaluate(x, y, z);
         T right = rightD.evaluate(x, y, z);
         return evaluateImpl(left, right);
     }
 
-    protected abstract T evaluateImpl(T left, T right) throws ParsingException, EvaluatingException;
+    protected abstract T evaluateImpl(T left, T right);
 }

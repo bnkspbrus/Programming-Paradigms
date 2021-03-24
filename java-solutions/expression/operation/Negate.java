@@ -1,8 +1,6 @@
 package expression.operation;
 
 import expression.TripleExpression;
-import expression.exceptions.EvaluatingException;
-import expression.exceptions.ParsingException;
 import expression.type.TypeOperations;
 
 public class Negate<T> extends AbstractUnary<T> {
@@ -11,7 +9,7 @@ public class Negate<T> extends AbstractUnary<T> {
         super(unary, type);
     }
 
-    protected T evaluateImpl(T unary) throws ParsingException, EvaluatingException {
+    protected T evaluateImpl(T unary) {
         return type.negate(unary);
     }
 }

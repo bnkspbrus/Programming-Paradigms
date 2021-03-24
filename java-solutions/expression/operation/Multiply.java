@@ -1,8 +1,6 @@
 package expression.operation;
 
 import expression.TripleExpression;
-import expression.exceptions.EvaluatingException;
-import expression.exceptions.ParsingException;
 import expression.type.TypeOperations;
 
 public class Multiply<T> extends AbstractBinary<T> {
@@ -12,7 +10,7 @@ public class Multiply<T> extends AbstractBinary<T> {
     }
 
     @Override
-    protected T evaluateImpl(T left, T right) throws ParsingException, EvaluatingException {
+    protected T evaluateImpl(T left, T right) {
         return type.multiply(left, right);
     }
 }

@@ -1,8 +1,6 @@
 package expression.operation;
 
 import expression.TripleExpression;
-import expression.exceptions.EvaluatingException;
-import expression.exceptions.ParsingException;
 import expression.type.TypeOperations;
 
 public abstract class AbstractUnary<T> implements TripleExpression<T> {
@@ -14,11 +12,11 @@ public abstract class AbstractUnary<T> implements TripleExpression<T> {
         this.type = type;
     }
 
-    public T evaluate(T x, T y, T z) throws ParsingException, EvaluatingException {
+    public T evaluate(T x, T y, T z) {
         T unary = unaryD.evaluate(x, y, z);
         return evaluateImpl(unary);
     }
 
-    protected abstract T evaluateImpl(T unary) throws ParsingException, EvaluatingException;
+    protected abstract T evaluateImpl(T unary);
 }
 
