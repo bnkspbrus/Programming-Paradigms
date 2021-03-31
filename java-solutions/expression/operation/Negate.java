@@ -14,3 +14,5 @@ public class Negate<T> extends AbstractUnary<T> {
         return type.negate(unary);
     }
 }
+
+
