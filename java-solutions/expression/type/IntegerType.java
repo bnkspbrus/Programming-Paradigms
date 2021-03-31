@@ -1,6 +1,8 @@
 package expression.type;
 
-public class IntegerType extends AbstractNonDivisibleType<Integer> {
+import expression.exceptions.OverflowException;
+
+public class IntegerType implements TypeOperations<Integer> {
 
     private final boolean checkMode;
 
@@ -9,10 +11,10 @@ public class IntegerType extends AbstractNonDivisibleType<Integer> {
     }
 
     @Override
-    public Integer addImpl(Integer left, Integer right) {
+    public Integer add(Integer left, Integer right) throws OverflowException {
         if (checkMode) {
             if (left >= 0 && right >= 0 && left + right < 0 || left < 0 && right < 0 && left + right >= 0) {
-                return null;
+                throw new OverflowException(left + " + " + right + " -- overflow\n");
             }
         }
         return left + right;
@@ -20,24 +22,24 @@ public class IntegerType extends AbstractNonDivisibleType<Integer> {
     }
 
     @Override
-    public Integer divideImpl(Integer left, Integer right) {
+    public Integer divide(Integer left, Integer right) throws OverflowException {
         if (checkMode) {
             if (left == Integer.MIN_VALUE && right == -1) {
-                return null;
+                throw new OverflowException(left + " / " + right + " -- overflow\n");
             }
         }
         if (right == 0) {
-            return null;
+            throw new OverflowException("division by zero\n");
         }
 
         return left / right;
     }
 
     @Override
-    public Integer subtractImpl(Integer left, Integer right) {
+    public Integer subtract(Integer left, Integer right) throws OverflowException {
         if (checkMode) {
             if (left >= 0 && right < 0 && left - Integer.MAX_VALUE > right || left <= 0 && right > 0 && Integer.MIN_VALUE - left > -right) {
-                return null;
+                throw new OverflowException(left + " - " + right + " -- overflow\n");
             }
         }
         return left - right;
@@ -45,34 +47,31 @@ public class IntegerType extends AbstractNonDivisibleType<Integer> {
     }
 
     @Override
-    public Integer negateImpl(Integer left) {
+    public Integer negate(Integer left) throws OverflowException {
         if (checkMode) {
             if (left == Integer.MIN_VALUE) {
-                return null;
+                throw new OverflowException("-" + left + " -- overflow\n");
             }
         }
         return -left;
     }
 
     @Override
-    public Integer multiplyImpl(Integer left, Integer right) {
+    public Integer multiply(Integer left, Integer right) throws OverflowException {
         if (checkMode) {
-            if (left >= 1 && right >= 1 && Integer.MAX_VALUE / left < right
-                    || left < 0 && right < 0 && Integer.MAX_VALUE / left > right
-                    || left < -1 && right >= 0 && Integer.MIN_VALUE / left < right
-                    || left >= 0 && right < -1 && Integer.MIN_VALUE / right < left) {
-                return null;
+            if (left >= 1 && right >= 1 && Integer.MAX_VALUE / left < right || left < 0 && right < 0 && Integer.MAX_VALUE / left > right || left < -1 && right >= 0 && Integer.MIN_VALUE / left < right || left >= 0 && right < -1 && Integer.MIN_VALUE / right < left) {
+                throw new OverflowException(left + " * " + right + " -- overflow\n");
             }
         }
         return left * right;
     }
 
     @Override
-    public Integer valueOf(String s) {
+    public Integer valueOf(String s) throws OverflowException {
         try {
             return Integer.parseInt(s);
         } catch (NumberFormatException e) {
-            return null;
+            throw new OverflowException(s + " -- overflow\n");
         }
     }
 }

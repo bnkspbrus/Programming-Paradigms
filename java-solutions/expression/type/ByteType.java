@@ -1,32 +1,34 @@
 package expression.type;
 
-public class ByteType extends AbstractNonDivisibleType<Byte> {
+import expression.exceptions.OverflowException;
+
+public class ByteType implements TypeOperations<Byte> {
 
     @Override
-    public Byte addImpl(Byte left, Byte right) {
+    public Byte add(Byte left, Byte right) {
         return (byte) (left + right);
     }
 
     @Override
-    public Byte divideImpl(Byte left, Byte right) {
+    public Byte divide(Byte left, Byte right) throws OverflowException {
         if (right == 0) {
-            return null;
+            throw new OverflowException("division by zero\n");
         }
         return (byte) (left / right);
     }
 
     @Override
-    public Byte subtractImpl(Byte left, Byte right) {
+    public Byte subtract(Byte left, Byte right) {
         return (byte) (left - right);
     }
 
     @Override
-    public Byte negateImpl(Byte left) {
+    public Byte negate(Byte left) {
         return (byte) -left;
     }
 
     @Override
-    public Byte multiplyImpl(Byte left, Byte right) {
+    public Byte multiply(Byte left, Byte right) {
         return (byte) (left * right);
     }
 

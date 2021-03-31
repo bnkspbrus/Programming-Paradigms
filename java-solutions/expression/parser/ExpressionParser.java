@@ -1,6 +1,7 @@
 package expression.parser;
 
 import expression.*;
+import expression.exceptions.OverflowException;
 import expression.exceptions.ParsingException;
 import expression.operation.*;
 import expression.type.TypeOperations;
@@ -13,11 +14,15 @@ public class ExpressionParser<T> implements ParserGeneric<T> {
 
     private final TypeOperations<T> type;
 
+    public TypeOperations<T> getType() {
+        return type;
+    }
+
     public ExpressionParser(TypeOperations<T> type) {
         this.type = type;
     }
 
-    public TripleExpressionGeneric<T> parse(String expression) throws ParsingException {
+    public TripleExpressionGeneric<T> parse(String expression) throws ParsingException, OverflowException {
         pos = 0;
         name = "begin_line";
         this.expression = expression;
@@ -29,21 +34,20 @@ public class ExpressionParser<T> implements ParserGeneric<T> {
     }
 
 
-    private TripleExpressionGeneric<T> firstPriority() throws ParsingException {
+    private TripleExpressionGeneric<T> firstPriority() throws ParsingException, OverflowException {
         TripleExpressionGeneric<T> res;
         String prevName = name;
         nextName();
         switch (name) {
             case "(":
                 res = thirdPriority(); // last priority
-                if (!name.equals(")"))
-                    throw new ParsingException("No closing parenthesis\n");
+                if (!name.equals(")")) throw new ParsingException("No closing parenthesis\n");
                 nextName();
                 break;
             case "-":
 //                if (negate) {
                 negate = false;
-                res = new Negate<>(firstPriority(), type);
+                res = new Negate<>(firstPriority());
                 break;
 //                }
             case "x":
@@ -73,15 +77,15 @@ public class ExpressionParser<T> implements ParserGeneric<T> {
         return "middle";
     }
 
-    private TripleExpressionGeneric<T> secondPriority() throws ParsingException {
+    private TripleExpressionGeneric<T> secondPriority() throws ParsingException, OverflowException {
         TripleExpressionGeneric<T> left = firstPriority();
         while (true) {
             switch (name) {
                 case "*":
-                    left = new Multiply<>(left, firstPriority(), type);
+                    left = new Multiply<>(left, firstPriority());
                     break;
                 case "/":
-                    left = new Divide<>(left, firstPriority(), type);
+                    left = new Divide<>(left, firstPriority());
                     break;
                 default:
                     return left;
@@ -89,17 +93,17 @@ public class ExpressionParser<T> implements ParserGeneric<T> {
         }
     }
 
-    private TripleExpressionGeneric<T> thirdPriority() throws ParsingException {
+    private TripleExpressionGeneric<T> thirdPriority() throws ParsingException, OverflowException {
         TripleExpressionGeneric<T> left = secondPriority();
         while (true) {
             switch (name) {
                 case "-":
                     if (!negate) {
-                        left = new Subtract<>(left, secondPriority(), type);
+                        left = new Subtract<>(left, secondPriority());
                         break;
                     }
                 case "+":
-                    left = new Add<>(left, secondPriority(), type);
+                    left = new Add<>(left, secondPriority());
                     break;
                 default:
                     return left;
@@ -142,8 +146,8 @@ public class ExpressionParser<T> implements ParserGeneric<T> {
             return;
         }
         if (expression.charAt(pos) == '-' && !isNumber(name) && !name.equals(")") && !isVariable(name)) {
-            scipWS();
             pos++;
+            scipWS();
             if (pos < expression.length() && Character.isDigit(expression.charAt(pos))) {
                 name = "-" + readNumber();
                 return;
@@ -163,14 +167,6 @@ public class ExpressionParser<T> implements ParserGeneric<T> {
         return name.length() > 1 ? Character.isDigit(name.charAt(1)) : Character.isDigit(name.charAt(0));
     }
 
-//    private boolean isWhitespace(char c) {
-//        return c == ' ' || c == '\n' || c == '\t';
-//    }
-
-//    private boolean isDigit(char c) {
-//        return c >= '0' && c <= '9';
-//    }
-
     private String readName() {
         int mark = pos++;
         while (pos < expression.length() && !NAMES.contains(expression.substring(mark, pos))) {
@@ -180,10 +176,5 @@ public class ExpressionParser<T> implements ParserGeneric<T> {
     }
 
     private boolean negate;
-
-//    public static void main(String[] args) throws ParsingException {
-//        ExpressionParser<Integer> ex = new ExpressionParser<>(new IntegerType(false));
-//        ex.parse("-(-(-\t\t-5 + 16   *x*y) + 1 * z) -(((-11)))");
-//    }
 }
 

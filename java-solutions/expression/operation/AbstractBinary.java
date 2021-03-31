@@ -1,23 +1,22 @@
 package expression.operation;
 
 import expression.TripleExpressionGeneric;
+import expression.exceptions.OverflowException;
 import expression.type.TypeOperations;
 
 public abstract class AbstractBinary<T> implements TripleExpressionGeneric<T> {
-    TripleExpressionGeneric<T> leftD, rightD;
-    TypeOperations<T> type;
+    protected TripleExpressionGeneric<T> leftD, rightD;
 
-    public AbstractBinary(TripleExpressionGeneric<T> left, TripleExpressionGeneric<T> right, TypeOperations<T> type) {
+    public AbstractBinary(TripleExpressionGeneric<T> left, TripleExpressionGeneric<T> right) {
         leftD = left;
         rightD = right;
-        this.type = type;
     }
 
-    public T evaluate(T x, T y, T z) {
-        T left = leftD.evaluate(x, y, z);
-        T right = rightD.evaluate(x, y, z);
-        return evaluateImpl(left, right);
+    public T evaluate(T x, T y, T z, TypeOperations<T> type) throws OverflowException {
+        T left = leftD.evaluate(x, y, z, type);
+        T right = rightD.evaluate(x, y, z, type);
+        return evaluateImpl(left, right, type);
     }
 
-    protected abstract T evaluateImpl(T left, T right);
+    protected abstract T evaluateImpl(T left, T right, TypeOperations<T> type) throws OverflowException;
 }
