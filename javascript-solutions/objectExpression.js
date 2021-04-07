@@ -77,6 +77,8 @@ let Multiply = createOperation(Binary, "*", (a, b) => a * b);
 
 let Divide = createOperation(Binary, "/", (a, b) => a / b);
 
+let ArcTan2 = createOperation(Binary, "atan2", (a, b) => Math.atan2(a, b));
+
 function Unary(left) {
     this.left = left;
 }
@@ -98,6 +100,8 @@ let Negate = createOperation(Unary, "negate", a => -a);
 let Sinh = createOperation(Unary, "sinh", a => Math.sinh(a));
 
 let Cosh = createOperation(Unary, "cosh", a => Math.cosh(a));
+
+let ArcTan = createOperation(Unary, "atan", a => Math.atan(a));
 
 const NAME = new Set(["+", "-", "*", "/", "negate", "(", ")", "x", "y", "z", "sinh", "cosh"]);
 
@@ -148,7 +152,7 @@ Tokenizer.prototype = {
             this.pos++;
         }
         if (this.pos < this.string.length && !this.isWhitespace(this.string[this.pos]) && this.string[this.pos] !== "(" && this.string[this.pos] !== ")") {
-            throw new ParsingError("Unknown variable\n");
+            throw new ParsingError("Unknown variable '" + this.string.substring(mark, this.pos) + "' at position " + this.pos + "\n");
         }
         return this.string.substring(mark, this.pos);
     },
@@ -175,9 +179,9 @@ Tokenizer.prototype = {
         let name = this.readName();
         if (!NAME.has(name)) {
             if (this.token === "(") {
-                throw new ParsingError("Unknown operation\n");
+                throw new ParsingError("Unknown operation '" + name + "' at position " + this.pos + "\n");
             }
-            throw new ParsingError("Unknown variable\n");
+            throw new ParsingError("Unknown variable '" + name + "' at position " + this.pos + "\n");
         }
         this.token = name;
     }
@@ -191,7 +195,7 @@ ExpressionParser.prototype.parsePrefix = function() {
     let result = this.parse();
     this.tokenizer.nextToken();
     if (this.tokenizer.token !== "end_line") {
-        throw new ParsingError("Excessive info\n");
+        throw new ParsingError("Excessive info '" + this.tokenizer.token + "' at position " + this.tokenizer.pos + "\n");
     }
     return result;
 }
@@ -206,22 +210,22 @@ ExpressionParser.prototype.parse = function() {
                 try {
                     result = new (BINARY.get(this.tokenizer.token))(this.parse(), this.parse());
                 } catch (e) {
-                    throw new ParsingError("Invalid binary\n");
+                    throw new ParsingError("Invalid binary, expected argument at position " + this.tokenizer.pos + "\n");
                 }
             } else {
                 try {
                     result = new (UNARY.get(this.tokenizer.token))(this.parse());
                 } catch (e) {
-                    throw new ParsingError("Invalid unary\n");
+                    throw new ParsingError("Invalid unary, expected argument at position " + this.tokenizer.pos + "\n");
                 }
             }
             this.tokenizer.nextToken();
             if (this.tokenizer.token !== ")") {
-                throw new ParsingError("No closing parenthesis\n");
+                throw new ParsingError("No closing parenthesis at position " + this.tokenizer.pos + "\n");
             }
             return result;
         } else {
-            throw new ParsingError("Operator is absent\n");
+            throw new ParsingError("Operator is absent at position " + this.tokenizer.pos + "\n");
         }
     } else {
         if (VARIABLE.has(this.tokenizer.token)) {
