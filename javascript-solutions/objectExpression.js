@@ -203,9 +203,17 @@ ExpressionParser.prototype.parse = function() {
         if (BINARY.has(this.tokenizer.token) || UNARY.has(this.tokenizer.token)) {
             let result;
             if (BINARY.has(this.tokenizer.token)) {
-                result = new (BINARY.get(this.tokenizer.token))(this.parse(), this.parse());
+                try {
+                    result = new (BINARY.get(this.tokenizer.token))(this.parse(), this.parse());
+                } catch (e) {
+                    throw new ParsingError("Invalid binary\n");
+                }
             } else {
-                result = new (UNARY.get(this.tokenizer.token))(this.parse());
+                try {
+                    result = new (UNARY.get(this.tokenizer.token))(this.parse());
+                } catch (e) {
+                    throw new ParsingError("Invalid unary\n");
+                }
             }
             this.tokenizer.nextToken();
             if (this.tokenizer.token !== ")") {
