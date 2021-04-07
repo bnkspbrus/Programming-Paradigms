@@ -5,32 +5,32 @@ function Const(value) {
 }
 
 Const.prototype = {
-    evaluate: function () {
+    evaluate: function() {
         return this.value;
     },
-    toString: function () {
+    toString: function() {
         return this.value.toString();
     }
 }
 
-let SWITCH = {
-    x: 0,
-    y: 1,
-    z: 2
-}
+Const.prototype.prefix = Const.prototype.toString;
+
+
+const SWITCH = new Map([["x", 0], ["y", 1], ["z", 2]]);
 
 function Variable(name) {
     this.name = name;
 }
 
 Variable.prototype = {
-    evaluate: function () {
-        return arguments[SWITCH[this.name]];
+    evaluate: function() {
+        return arguments[SWITCH.get(this.name)];
     },
-    toString: function () {
+    toString: function() {
         return this.name.toString();
     }
 }
+Variable.prototype.prefix = Variable.prototype.toString;
 
 function Binary(left, right) {
     this.left = left;
@@ -38,99 +38,199 @@ function Binary(left, right) {
 }
 
 Binary.prototype = {
-    evaluate: function (...args) {
+    evaluate: function(...args) {
         return this.func(this.left.evaluate(...args), this.right.evaluate(...args));
     },
-    toString: function () {
+    toString: function() {
         return this.left.toString() + " " + this.right.toString() + " " + this.sign;
+    },
+    prefix() {
+        return "(" + this.sign + " " + this.left.prefix() + " " + this.right.prefix() + ")";
     }
 }
 
-function Add(left, right) {
-    // Binary.call(this, left, right);
-    // this.sign = "+";
-    // this.func = (a, b) => a + b;
-    initBin.call(this, left, right, "+", (a, b) => a + b);
+function createPrototype(base) {
+    function Result(sign, func) {
+        this.func = func;
+        this.sign = sign;
+    }
+
+    Result.prototype = Object.create(base.prototype);
+    return Result;
 }
 
-Add.prototype = Object.create(Binary.prototype);
+function createOperation(base, sign, func) {
+    function Result(...args) {
+        base.call(this, ...args);
+    }
 
-function Subtract(left, right) {
-    // Binary.call(this, left, right);
-    // this.sign = "-";
-    // this.func = (a, b) => a - b;
-    initBin.call(this, left, right, "-", (a, b) => a - b);
+    let Prototype = createPrototype(base);
+    Result.prototype = new Prototype(sign, func);
+    return Result;
 }
 
-Subtract.prototype = Object.create(Binary.prototype);
+let Add = createOperation(Binary, "+", (a, b) => a + b);
 
-function Multiply(left, right) {
-    // Binary.call(this, left, right);
-    // this.sign = "*";
-    // this.func = (a, b) => a * b;
-    initBin.call(this, left, right, "*", (a, b) => a * b);
-}
+let Subtract = createOperation(Binary, "-", (a, b) => a - b);
 
-Multiply.prototype = Object.create(Binary.prototype);
+let Multiply = createOperation(Binary, "*", (a, b) => a * b);
 
-function Divide(left, right) {
-    // Binary.call(this, left, right);
-    // this.sign = "/";
-    // this.func = (a, b) => a / b;
-    initBin.call(this, left, right, "/", (a, b) => a / b);
-}
-
-Divide.prototype = Object.create(Binary.prototype);
+let Divide = createOperation(Binary, "/", (a, b) => a / b);
 
 function Unary(left) {
     this.left = left;
 }
 
 Unary.prototype = {
-    evaluate: function (...args) {
+    evaluate: function(...args) {
         return this.func(this.left.evaluate(...args));
     },
-    toString: function () {
+    toString: function() {
         return this.left.toString() + " " + this.sign;
+    },
+    prefix() {
+        return "(" + this.sign + " " + this.left.prefix() + ")";
     }
 }
 
-function Negate(left) {
-    // Unary.call(this, left);
-    // this.sign = "negate";
-    // this.func = a => -a;
-    initUn.call(this, left, "negate", a => -a);
+let Negate = createOperation(Unary, "negate", a => -a);
+
+let Sinh = createOperation(Unary, "sinh", a => Math.sinh(a));
+
+let Cosh = createOperation(Unary, "cosh", a => Math.cosh(a));
+
+const NAME = new Set(["+", "-", "*", "/", "negate", "(", ")", "x", "y", "z", "sinh", "cosh"]);
+
+const BINARY = new Map([["+", Add], ["-", Subtract], ["*", Multiply], ["/", Divide]]);
+
+const UNARY = new Map([["negate", Negate], ["sinh", Sinh], ["cosh", Cosh]]);
+
+
+function ParsingError(message) {
+    this.message = message;
 }
 
-Negate.prototype = Object.create(Unary.prototype);
+ParsingError.prototype = Object.create(Error.prototype);
+ParsingError.prototype.name = "ParsingError";
+ParsingError.prototype.constructor = ParsingError;
 
-function ArcTan(left) {
-    // Unary.call(this, left);
-    // this.sign = "atan";
-    // this.func = a => Math.atan(a);
-    initUn.call(this, left, "atan", a => Math.atan(a));
+const VARIABLE = new Set(["x", "y", "z"]);
+
+function Tokenizer(string) {
+    this.string = string;
+    this.pos = 0;
+    this.token = "begin_line";
 }
 
-ArcTan.prototype = Object.create(Unary.prototype);
-
-function ArcTan2(left, right) {
-    // Binary.call(this, left, right);
-    // this.sign = "atan2";
-    // this.func = (a, b) => Math.atan2(a, b);
-    initBin.call(this, left, right, "atan2", (a, b) => Math.atan2(a, b));
+Tokenizer.prototype = {
+    isWhitespace(ch) {
+        return /\s/.test(ch);
+    },
+    isDigit(ch) {
+        return /\d/.test(ch);
+    },
+    scipWS() {
+        while (this.pos < this.string.length && this.isWhitespace(this.string[this.pos])) {
+            this.pos++;
+        }
+    },
+    readName() {
+        let mark = this.pos;
+        while (this.pos < this.string.length && !this.isWhitespace(this.string[this.pos]) &&
+        !NAME.has(this.string.substring(mark, this.pos))) {
+            this.pos++;
+        }
+        return this.string.substring(mark, this.pos);
+    },
+    readNumber() {
+        let mark = this.pos;
+        while (this.pos < this.string.length && this.isDigit(this.string[this.pos])) {
+            this.pos++;
+        }
+        if (this.pos < this.string.length && !this.isWhitespace(this.string[this.pos]) && this.string[this.pos] !== "(" && this.string[this.pos] !== ")") {
+            throw new ParsingError("Unknown variable\n");
+        }
+        return this.string.substring(mark, this.pos);
+    },
+    nextToken() {
+        this.scipWS();
+        if (this.pos === this.string.length) {
+            if (this.token === "begin_line") {
+                throw new ParsingError("Empty input\n");
+            }
+            this.token = "end_line";
+            return;
+        }
+        if (this.string[this.pos] === "-") {
+            if (this.isDigit(this.string[this.pos + 1])) {
+                this.pos++;
+                this.token = "-" + this.readNumber();
+                return;
+            }
+        }
+        if (this.isDigit(this.string[this.pos])) {
+            this.token = this.readNumber();
+            return;
+        }
+        let name = this.readName();
+        if (!NAME.has(name)) {
+            if (this.token === "(") {
+                throw new ParsingError("Unknown operation\n");
+            }
+            throw new ParsingError("Unknown variable\n");
+        }
+        this.token = name;
+    }
 }
 
-ArcTan2.prototype = Object.create(Binary.prototype);
-
-function initBin(left, right, sign, func) {
-    Binary.call(this, left, right);
-    this.sign = sign;
-    this.func = func;
+function ExpressionParser(string) {
+    this.tokenizer = new Tokenizer(string);
 }
 
-function initUn(left, sign, func) {
-    Unary.call(this, left);
-    this.sign = sign;
-    this.func = func;
+ExpressionParser.prototype.parsePrefix = function() {
+    let result = this.parse();
+    this.tokenizer.nextToken();
+    if (this.tokenizer.token !== "end_line") {
+        throw new ParsingError("Excessive info\n");
+    }
+    return result;
 }
+
+ExpressionParser.prototype.parse = function() {
+    this.tokenizer.nextToken();
+    if (this.tokenizer.token === "(") {
+        this.tokenizer.nextToken();
+        if (BINARY.has(this.tokenizer.token) || UNARY.has(this.tokenizer.token)) {
+            let result;
+            if (BINARY.has(this.tokenizer.token)) {
+                result = new (BINARY.get(this.tokenizer.token))(this.parse(), this.parse());
+            } else {
+                result = new (UNARY.get(this.tokenizer.token))(this.parse());
+            }
+            this.tokenizer.nextToken();
+            if (this.tokenizer.token !== ")") {
+                throw new ParsingError("No closing parenthesis\n");
+            }
+            return result;
+        } else {
+            throw new ParsingError("Operator is absent\n");
+        }
+    } else {
+        if (VARIABLE.has(this.tokenizer.token)) {
+            return new Variable(this.tokenizer.token);
+        } else {
+            let value = Number(this.tokenizer.token);
+            if (!isNaN(value)) {
+                return new Const(value);
+            }
+            throw new ParsingError("Invalid number\n");
+        }
+    }
+}
+
+function parsePrefix(string) {
+    let ex = new ExpressionParser(string);
+    return ex.parsePrefix();
+}
+
 
