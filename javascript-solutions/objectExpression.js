@@ -32,76 +32,56 @@ Variable.prototype = {
 }
 Variable.prototype.prefix = Variable.prototype.toString;
 
-function Binary(left, right) {
-    this.left = left;
-    this.right = right;
+function Operation(...operands) {
+    this.operands = operands;
 }
 
-Binary.prototype = {
-    evaluate: function(...args) {
-        return this.func(this.left.evaluate(...args), this.right.evaluate(...args));
+Operation.prototype = {
+    evaluate(...args) {
+        const evaluates = this.operands.map(operand => operand.evaluate(...args));
+        return this.func(...evaluates);
     },
-    toString: function() {
-        return this.left.toString() + " " + this.right.toString() + " " + this.sign;
+    toString() {
+        return this.operands.map(operand => operand.toString()).join(" ") + " " + this.sign;
     },
     prefix() {
-        return "(" + this.sign + " " + this.left.prefix() + " " + this.right.prefix() + ")";
+        return "(" + this.sign + " " + this.operands.map(operand => operand.prefix()).join(" ") + ")";
     }
 }
 
-function createPrototype(base) {
-    function Result(sign, func) {
-        this.func = func;
-        this.sign = sign;
-    }
-
-    Result.prototype = Object.create(base.prototype);
-    return Result;
+function Prototype(sign, func) {
+    this.func = func;
+    this.sign = sign;
 }
 
-function createOperation(base, sign, func) {
+Prototype.prototype = Object.create(Operation.prototype);
+
+function createOperation(sign, func) {
     function Result(...args) {
-        base.call(this, ...args);
+        Operation.call(this, ...args);
     }
 
-    let Prototype = createPrototype(base);
     Result.prototype = new Prototype(sign, func);
     return Result;
 }
 
-let Add = createOperation(Binary, "+", (a, b) => a + b);
+let Add = createOperation("+", (a, b) => a + b);
 
-let Subtract = createOperation(Binary, "-", (a, b) => a - b);
+let Subtract = createOperation("-", (a, b) => a - b);
 
-let Multiply = createOperation(Binary, "*", (a, b) => a * b);
+let Multiply = createOperation("*", (a, b) => a * b);
 
-let Divide = createOperation(Binary, "/", (a, b) => a / b);
+let Divide = createOperation("/", (a, b) => a / b);
 
-let ArcTan2 = createOperation(Binary, "atan2", (a, b) => Math.atan2(a, b));
+let ArcTan2 = createOperation("atan2", (a, b) => Math.atan2(a, b));
 
-function Unary(left) {
-    this.left = left;
-}
+let Negate = createOperation("negate", a => -a);
 
-Unary.prototype = {
-    evaluate: function(...args) {
-        return this.func(this.left.evaluate(...args));
-    },
-    toString: function() {
-        return this.left.toString() + " " + this.sign;
-    },
-    prefix() {
-        return "(" + this.sign + " " + this.left.prefix() + ")";
-    }
-}
+let Sinh = createOperation("sinh", a => Math.sinh(a));
 
-let Negate = createOperation(Unary, "negate", a => -a);
+let Cosh = createOperation("cosh", a => Math.cosh(a));
 
-let Sinh = createOperation(Unary, "sinh", a => Math.sinh(a));
-
-let Cosh = createOperation(Unary, "cosh", a => Math.cosh(a));
-
-let ArcTan = createOperation(Unary, "atan", a => Math.atan(a));
+let ArcTan = createOperation("atan", a => Math.atan(a));
 
 const NAME = new Set(["+", "-", "*", "/", "negate", "(", ")", "x", "y", "z", "sinh", "cosh"]);
 
@@ -244,5 +224,3 @@ function parsePrefix(string) {
     let ex = new ExpressionParser(string);
     return ex.parsePrefix();
 }
-
-
