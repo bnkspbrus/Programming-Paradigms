@@ -2,7 +2,7 @@ package queue;
 
 import java.util.Arrays;
 
-public class LinkedQueueTest {
+public class MyLinkedQueueTest {
     public static void fill(Queue queue) {
         for (int i = 0; i < 3; i++) {
             queue.enqueue("world + " + i);
