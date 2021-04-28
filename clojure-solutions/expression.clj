@@ -30,21 +30,20 @@
 
 (def fun-arg #{+ - *})
 
-(def dup-op                                                 ; operations that are duplicated with external
+(def spec-op                                                ; operations that are duplicated with external
   {'sin sin
-   'cos cos})
+   'cos cos
+   '/   divide})
 
 (defn parseFunction [expr]
   (let [tokens (read-string expr)]
     (letfn [(filter [token]
               (cond
                 (list? token) (letfn [(action [f] (apply f (map filter (rest token))))]
-                                (if (contains? dup-op (first token)) (action (dup-op (first token)))
+                                (if (contains? spec-op (first token)) (action (spec-op (first token)))
                                   (let [fun (eval (first token))]
-                                    (cond
-                                      (= fun /) (action divide)
-                                      (contains? fun-arg fun) (action (operation fun))
-                                      :else (action fun)))))
+                                    (if (contains? fun-arg fun) (action (operation fun))
+                                      (action fun)))))
                 (symbol? token) (variable (str token))
                 :else (constant token)))]
       (filter tokens))))
