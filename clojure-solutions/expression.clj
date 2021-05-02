@@ -1,5 +1,3 @@
-;(ns expression)
-
 (defn variable [name]
   (fn [vals]
     (vals name)))
@@ -30,20 +28,17 @@
 
 (def fun-arg #{+ - *})
 
-(def spec-op                                                ; operations that are duplicated with external
-  {'sin sin
-   'cos cos
-   '/   divide})
-
 (defn parseFunction [expr]
   (let [tokens (read-string expr)]
     (letfn [(filter [token]
               (cond
                 (list? token) (letfn [(action [f] (apply f (map filter (rest token))))]
-                                (if (contains? spec-op (first token)) (action (spec-op (first token)))
+                                (binding [*ns* (find-ns 'user)]
                                   (let [fun (eval (first token))]
-                                    (if (contains? fun-arg fun) (action (operation fun))
-                                      (action fun)))))
+                                    (cond
+                                      (= fun /) (action divide)
+                                      (contains? fun-arg fun) (action (operation fun))
+                                      :else (action fun)))))
                 (symbol? token) (variable (str token))
                 :else (constant token)))]
       (filter tokens))))
