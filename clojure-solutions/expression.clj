@@ -35,7 +35,7 @@
     (letfn [(filter [token]
               (cond
                 (list? token) (letfn [(action [f] (apply f (map filter (rest token))))]
-                                (binding [*ns* (find-ns 'expression)]
+                                (binding [*ns* (find-ns 'user)]
                                   (let [fun (eval (first token))]
                                     (cond
                                       (= fun /) (action divide)
