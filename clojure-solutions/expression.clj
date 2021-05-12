@@ -73,12 +73,14 @@
 (def Constant)
 
 (def VProto
-  {:evaluate (fn [this vars]
-               (vars (_name this)))
-   :toString _name
-   :diff     (fn [this var]
-               (if (= var (_name this)) (Constant 1)
-                 (Constant 0)))
+  {:evaluate       (fn [this vars]
+                     (let [id (str (Character/toLowerCase (first (_name this))))]
+                       (vars id)))
+   :toString       _name
+   :diff           (fn [this var]
+                     (if (= var (_name this)) (Constant 1)
+                       (Constant 0)))
+   :toStringSuffix toString
    })
 
 (defn constructor [ctor prototype]
@@ -94,9 +96,10 @@
 (def value (field :value))
 
 (def CProto
-  {:evaluate (fn [this _] (value this))
-   :toString (fn [this] (format "%.1f" (value this)))
-   :diff     (fn [_ _] (Constant 0))
+  {:evaluate       (fn [this _] (value this))
+   :toString       (fn [this] (format "%.1f" (value this))) ;(format "%.1f" (value this)))
+   :diff           (fn [_ _] (Constant 0))
+   :toStringSuffix toString
    })
 
 (def Constant (constructor CCtor CProto))
@@ -111,6 +114,8 @@
 
 (def diff (method :diff))
 
+(def toStringSuffix (method :toStringSuffix))
+
 (defn OPCtor [this fun sign diff & operands]
   (assoc this
     :operands operands
@@ -119,12 +124,14 @@
     :sign sign))
 
 (def OPProto
-  {:evaluate (fn [this vars]
-               (apply (fun this) (mapv #(evaluate % vars) (operands this))))
-   :toString (fn [this]
-               (str "(" (sign this) " " (clojure.string/join " " (mapv #(toString %) (operands this))) ")"))
-   :diff     (fn [this var]
-               ((diff-fun this) (operands this) var))
+  {:evaluate       (fn [this vars]
+                     (apply (fun this) (mapv #(evaluate % vars) (operands this))))
+   :toString       (fn [this]
+                     (str "(" (sign this) " " (clojure.string/join " " (mapv #(toString %) (operands this))) ")"))
+   :diff           (fn [this var]
+                     ((diff-fun this) (operands this) var))
+   :toStringSuffix (fn [this]
+                     (str "(" (clojure.string/join " " (mapv #(toStringSuffix %) (operands this))) " " (sign this) ")"))
    })
 
 (def Operation (constructor OPCtor OPProto))
@@ -203,6 +210,122 @@
                 :else (Constant token)))]
       (filter tokens))))
 
+(defn -return [value tail] {:value value :tail tail})
+
+(def -valid? boolean)
+
+(def -value :value)
+
+(def -tail :tail)
+
+(defn -show [result]
+  (if (-valid? result) (str "-> " (pr-str (-value result)) " | " (pr-str (apply str (-tail result))))
+    "!"))
+
+(defn tabulate [parser inputs]
+  (run! (fn [input] (printf "    %-10s %s\n" (pr-str input) (-show (parser input)))) inputs))
+
+(defn _empty [value] (partial -return value))
+
+(defn _char [p]
+  (fn [[c & cs]]
+    (if (and c (p c))
+      (-return c cs))))
+
+(defn _map [f result]
+  (if (-valid? result)
+    (-return (f (-value result)) (-tail result))))
+
+(defn _combine [f a b]
+  (fn [input]
+    (let [ar ((force a) input)]
+      (if (-valid? ar)
+        (_map (partial f (-value ar))
+              ((force b) (-tail ar)))))))
+
+(defn _either [a b]
+  (fn [input]
+    (let [ar ((force a) input)]
+      (if (-valid? ar)
+        ar
+        ((force b) input)))))
+
+(defn _parser [p]
+  (let [pp (_combine (fn [v _] v) p (_char #{\u0000}))]
+    (fn [input] (-value (pp (str input \u0000))))))
+
+(defn +char [chars]
+  (_char (set chars)))
+
+(defn +char-not [chars]
+  (_char (comp not (set chars))))
+
+(defn +map [f parser]                                       ;expected inputs
+  (comp (partial _map f) parser))
+
+(def +parser _parser)
+
+(def +ignore                                                ; [parser]
+  (partial +map (constantly 'ignore)))
+
+(defn iconj [coll value]
+  (if (= value 'ignore)
+    coll
+    (conj coll value)))
+
+(defn +seq [& ps]                                           ; put in vector
+  (reduce (partial _combine iconj) (_empty []) ps))         ; return vector
+
+(defn +seqf [f & ps]
+  (+map (partial apply f) (apply +seq ps)))                 ; return
+
+(defn +seqn [n & ps]
+  (apply +seqf #(nth %& n) ps))
+
+(defn +or [p & ps]
+  (reduce _either p ps))
+
+(defn +opt [p]
+  (+or p (_empty nil)))
+
+(defn +star [p]
+  (letfn [(rec [] (+or (+seqf cons p (delay (rec))) (_empty ())))] ; return list
+    (rec)))
+
+(defn +plus [p]                                             ; p -- parser
+  (+seqf cons p (+star p)))                                 ; return list
+
+(defn +str [p] (+map (partial apply str) p))
+
+(def *all-chars (mapv char (range 0 128)))
+;(println (str *all-chars))
+(def *letter (+char (apply str (filter #(Character/isLetter %) *all-chars))))
+(def *digit (+char (apply str (filter #(Character/isDigit %) *all-chars))))
+(def *space (+char (apply str (filter #(Character/isWhitespace %) *all-chars))))
+(def *ws (+ignore (+star *space)))
+
+(def *identifier (+str (+seqf cons *letter (+star (+or *letter *digit)))))
+
+;=======================================================================================================================
+
+(def *number (+map read-string (+str (+seqf concat
+                                            (+map list (+opt (+char "-")))
+                                            (+plus *digit)
+                                            (+opt (+seqf cons (+char ".") (+plus *digit)))))))
+(def *const (+map Constant *number))
+
+(def *variable (+map Variable (+str (+plus (+char "xyzXYZ")))))
+
+(def *fun (+map (comp get-fun symbol) (+str (+plus (+or (+char "+-*/") *identifier)))))
+
+(def *value)
+
+(def *operation (+seqf (fn [_ ops fun _] (apply fun ops)) (+char "(") *ws
+                       (+plus (+seqn 0 (delay *value) *ws)) *fun *ws (+char ")")))
+
+(def *value (+or *const *variable *operation))
+
+(def parseObjectSuffix (+parser (+seqn 0 *ws *value *ws)))
 
 
 
