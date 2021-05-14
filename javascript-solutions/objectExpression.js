@@ -32,36 +32,50 @@ Variable.prototype = {
 }
 Variable.prototype.prefix = Variable.prototype.toString;
 
-function Operation(...operands) {
-    this.operands = operands;
+function Unary(left) {
+    this.left = left;
 }
 
-Operation.prototype = {
+Unary.prototype = {
     evaluate(...args) {
-        const evaluates = this.operands.map(operand => operand.evaluate(...args));
-        return this.func(...evaluates);
+        return this.func(this.left.evaluate(...args));
     },
     toString() {
-        return this.operands.map(operand => operand.toString()).join(" ") + " " + this.sign;
+        return this.left.toString() + " " + this.sign;
     },
     prefix() {
-        return "(" + this.sign + " " + this.operands.map(operand => operand.prefix()).join(" ") + ")";
+        return "(" + this.sign + " " + this.left.prefix() + ")";
     }
 }
 
-function Prototype(sign, func) {
-    this.func = func;
-    this.sign = sign;
+function Binary(left, right) {
+    this.left = left;
+    this.right = right;
 }
 
-Prototype.prototype = Object.create(Operation.prototype);
+Binary.prototype = {
+    evaluate(...args) {
+        return this.func(this.left.evaluate(...args), this.right.evaluate(...args));
+    },
+    toString() {
+        return this.left.toString() + " " + this.right.toString() + " " + this.sign;
+    },
+    prefix() {
+        return "(" + this.sign + " " + this.left.prefix() + " " + this.right.prefix() + ")";
+    }
+}
+
+const TYPE_OP = new Map([["+", Binary], ["-", Binary], ["*", Binary], ["/", Binary], ["atan2", Binary],
+    ["negate", Unary], ["sinh", Unary], ["cosh", Unary], ["atan", Unary]]);
 
 function createOperation(sign, func) {
     function Result(...args) {
-        Operation.call(this, ...args);
+        TYPE_OP.get(sign).call(this, ...args);
     }
 
-    Result.prototype = new Prototype(sign, func);
+    Result.prototype = Object.create(TYPE_OP.get(sign).prototype);
+    Result.prototype.sign = sign;
+    Result.prototype.func = func;
     return Result;
 }
 
