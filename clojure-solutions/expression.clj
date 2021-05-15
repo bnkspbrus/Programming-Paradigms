@@ -97,7 +97,7 @@
 
 (def CProto
   {:evaluate       (fn [this _] (value this))
-   :toString       (fn [this] (format "%.1f" (value this))) ;(format "%.1f" (value this)))
+   :toString       (fn [this] (str (value this)))
    :diff           (fn [_ _] (Constant 0))
    :toStringSuffix toString
    })
@@ -105,8 +105,6 @@
 (def Constant (constructor CCtor CProto))
 
 (def fun (field :fun))
-
-(def operands (field :operands))
 
 (def sign (field :sign))
 
@@ -116,28 +114,63 @@
 
 (def toStringSuffix (method :toStringSuffix))
 
-(defn OPCtor [this fun sign diff & operands]
+(def left (field :left))
+
+(def right (field :right))
+
+(defn UCons [this fun sign diff left]
   (assoc this
-    :operands operands
+    :left left
     :diff-fun diff
     :fun fun
     :sign sign))
 
-(def OPProto
+(defn BCons [this fun sign diff left right]
+  (assoc this
+    :left left
+    :right right
+    :diff-fun diff
+    :fun fun
+    :sign sign))
+
+(def UProto
   {:evaluate       (fn [this vars]
-                     (apply (fun this) (mapv #(evaluate % vars) (operands this))))
+                     ((fun this) (evaluate (left this) vars)))
    :toString       (fn [this]
-                     (str "(" (sign this) " " (clojure.string/join " " (mapv #(toString %) (operands this))) ")"))
+                     (str "(" (sign this) " " (toString (left this)) ")"))
    :diff           (fn [this var]
-                     ((diff-fun this) (operands this) var))
+                     ((diff-fun this) [(left this)] var))
    :toStringSuffix (fn [this]
-                     (str "(" (clojure.string/join " " (mapv #(toStringSuffix %) (operands this))) " " (sign this) ")"))
+                     (str "(" (toStringSuffix (left this)) " " (sign this) ")"))
    })
 
-(def Operation (constructor OPCtor OPProto))
+(def BProto
+  {:evaluate       (fn [this vars]
+                     ((fun this) (evaluate (left this) vars) (evaluate (right this) vars)))
+   :toString       (fn [this]
+                     (str "(" (sign this) " " (toString (left this)) " " (toString (right this)) ")"))
+   :diff           (fn [this var]
+                     ((diff-fun this) [(left this) (right this)] var))
+   :toStringSuffix (fn [this]
+                     (str "(" (toStringSuffix (left this)) " " (toStringSuffix (right this)) " " (sign this) ")"))
+   })
+
+(def Unary (constructor UCons UProto))
+
+(def Binary (constructor BCons BProto))
+
+(def get-base
+  {"negate" Unary
+   "+"      Binary
+   "-"      Binary
+   "*"      Binary
+   "/"      Binary
+   "sin"    Unary
+   "cos"    Unary
+   })
 
 (defn create-op [fun sign diff-fun]
-  (partial Operation fun sign diff-fun))
+  (partial (get-base sign) fun sign diff-fun))
 
 (def Negate)
 
@@ -185,7 +218,8 @@
 (def Sin (create-op #(Math/sin %) "sin" sin-diff))
 
 (defn cos-diff [op var]
-  (Multiply (Negate (Multiply (Sin (first op)) (diff (first op) var)))))
+  ;(Multiply (Negate (Multiply (Sin (first op)) (diff (first op) var)))))
+  (Negate (Multiply (Sin (first op)) (diff (first op) var))))
 
 (def Cos (create-op #(Math/cos %) "cos" cos-diff))
 
@@ -298,7 +332,6 @@
 (defn +str [p] (+map (partial apply str) p))
 
 (def *all-chars (mapv char (range 0 128)))
-;(println (str *all-chars))
 (def *letter (+char (apply str (filter #(Character/isLetter %) *all-chars))))
 (def *digit (+char (apply str (filter #(Character/isDigit %) *all-chars))))
 (def *space (+char (apply str (filter #(Character/isWhitespace %) *all-chars))))
@@ -326,8 +359,6 @@
 (def *value (+or *const *variable *operation))
 
 (def parseObjectSuffix (+parser (+seqn 0 *ws *value *ws)))
-
-
 
 
 
